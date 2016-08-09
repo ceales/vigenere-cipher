@@ -1,46 +1,41 @@
 (ns vigenere-cipher.core)
 
-(def alphabet-size 27)
+(def alphabet "abcdefghijklmnopqrstuvwxyz 0123456789")
+(def alphabet-size (count alphabet))
 
-(defn encode-char [c]
-  (let [ascii (int c)]
-    (if (and (>= ascii (int \a))
-             (<= ascii (int \z)))
-      (- ascii (int \a))
-      (if (= c \space)
-        26))))
+(def encode-map
+  (into {}
+        (map vector alphabet (range))))
 
-(defn decode-char [e]
-  (if (and (>= e 0)
-           (<= e 25))
-    (char (+ e (int \a)))
-    (if (= e 26)
-      \space)))
+(def decode-map (clojure.set/map-invert encode-map))
+
+(defn encode-char [c] (encode-map c))
+
+(defn decode-char [e] (decode-map e))
 
 (defn encode-string [s]
   (map encode-char s))
-(encode-string "hello")
 
 (defn decode-string [s]
   (apply str (map decode-char s)))
-(decode-string (encode-string "she sells sea shells on the sea shore"))
 
 (defn encode-key [key]
   (cycle (encode-string key)))
 
 (defn infinite-encrypt [s k]
-  (map (fn [x y] (mod (+ x y) alphabet-size)) (encode-string s) (encode-key k))) 
+  (map (fn [x y] (mod (+ x y) alphabet-size))
+       (encode-string s) (encode-key k)))
 
-(defn encrypt [s k]
-  (decode-string (take (count s) (infinite-encrypt s k))))
+(defn encrypt
+  "Encrypt the given string s with the key k using vigenere cipher.
+  Assuming \\a maps to 0, then
+  (encrypt \"hello\" \"b\") => \"ifmmp\""
+  [s k] (decode-string (take (count s) (infinite-encrypt s k))))
 
 (defn inverse-key [k]
-  (decode-string (map (fn [x] (mod (- alphabet-size x) alphabet-size)) (encode-string k)))
-  )
+  (decode-string (map (fn [x] (mod (* -1 x) alphabet-size))
+                      (encode-string k))))
 
-(defn decrypt [s k]
-  (encrypt s (inverse-key k)))
-
-(let [k "a b"
-      s "she sells sea shell on the sea shore"]
-  (decrypt (encrypt s k) k))
+(defn decrypt
+  "Decrypt the passed encrypted string s using key k"
+  [s k] (encrypt s (inverse-key k)))
