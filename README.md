@@ -1,10 +1,11 @@
 # vigenere-cipher
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure implementation of the Vigenere Cipher.
+[Wikipedia - Vigenere Cipher](https://en.wikipedia.org/wiki/Vigenère_cipher)
 
-## Usage
-
-FIXME
+This was the output of the efforts of Giavile and myself at the
+[London Clojurians](http://www.londonclojurians.org) dojo (8th August 2016) at
+uswitch.
 
 ## License
 
